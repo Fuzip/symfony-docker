@@ -1,0 +1,15 @@
+services:
+
+  php:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      target: php_dev
+      args:
+          TZ: ${TZ}
+    container_name: php
+    ports:
+        - 80:8000
+        - 443:8000
+    volumes:
+      - ./app:/app:rw,cached
