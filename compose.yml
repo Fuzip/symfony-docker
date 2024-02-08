@@ -3,13 +3,11 @@ services:
         container_name: php
         build:
             context: ./
-            dockerfile: docker/php/Dockerfile
+            dockerfile: docker/Dockerfile
             target: php_dev
             args:
                 TZ: ${TZ}
-        ports:
-            - 80:8000
-            - 443:8000
+        restart: always
         volumes:
             - ./app:/app:rw,cached
 
@@ -31,5 +29,36 @@ services:
             # See https://symfony.com/doc/current/setup/symfony_server.html#docker-integration
             com.symfony.server.service-prefix: 'DATABASE'
 
+    caddy:
+        container_name: caddy
+        image: caddy:2.7
+        restart: unless-stopped
+        hostname: localhost
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+        volumes:
+            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+            - ./app/public:/app/public:delegated
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            - php
+
+    nodejs:
+        container_name: nodejs
+        image: node:16-alpine
+        environment:
+            TZ: ${TZ}
+            PHP_HOST: php
+            PHP_PORT: 9000
+        volumes:
+            - ./app:/app:rw,cached
+            - ./app/public:/app/public:rw,delegated
+        working_dir: /app
+
 volumes:
-  postgres_data:
+    postgres_data:
+    caddy_data:
+    caddy_config:

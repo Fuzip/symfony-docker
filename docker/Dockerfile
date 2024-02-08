@@ -1,5 +1,6 @@
 ARG PHP_VERSION=8.3
 ARG COMPOSER_VERSION=2.5
+ARG NODE_VERSION=18
 ARG APP_DIR=/app
 ARG TZ=Europe/Paris
 
@@ -83,3 +84,20 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 CMD ["php-fpm", "symfony server:start"]
+
+FROM node:${NODE_VERSION} AS nodejs_builder
+
+ARG APP_DIR
+WORKDIR $APP_DIR
+
+COPY ./app/package.json ./app/yarn.lock ./app/webpack.config.js ./app/.webpack-env.local ./
+COPY ./app/assets/ ./assets
+COPY --from=php_builder $APP_DIR ./
+
+RUN set -eux; \
+	yarn install; \
+	yarn cache clean; \
+    npm rebuild node-sass;
+
+RUN set -eux; \
+	yarn build

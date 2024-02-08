@@ -73,9 +73,20 @@ composer_require_dev:
 	$(COMPOSER) require --dev $(ARGS)
 
 ## ——————————————————
+## —— Caddy
+## ——————————————————
+.PHONY: caddy_fmt caddy_reload
+
+caddy_fmt: ## Format Caddyfile config
+	$(DOCKER_COMPOSE) exec -w /etc/caddy caddy caddy fmt --overwrite
+
+caddy_reload: ## Reloading Caddy server
+	$(DOCKER_COMPOSE) exec -w /etc/caddy caddy caddy reload
+
+## ——————————————————
 ## —— Symfony
 ## ——————————————————
-.PHONY: sf_version sf_console sf_cc sf_security sf_install_ca sf_start_server sf_stop_server sf_log_server
+.PHONY: sf_version sf_console sf_cc sf_security
 
 sf_version: ## Displays Symfony version
 	$(SYMFONY_CONSOLE) --version
@@ -88,18 +99,6 @@ sf_cc: ## Clear caches
 
 sf_security: ## Check if there is known vulnerabilities
 	$(PHP_ROOT) symfony security:check
-
-sf_install_ca: ## Install local CA certificate
-	$(PHP_ROOT) symfony server:ca:install
-
-sf_start_server: ## Start local Symfony server
-	$(PHP_ROOT) symfony server:start -d
-
-sf_stop_server: ## Stop local Symfony server
-	$(PHP_ROOT) symfony server:stop
-
-sf_log_server: ## Display log of local Symfony server
-	$(PHP_ROOT) symfony server:log
 
 # To avoid ${ARGS} errors ——————————————————————————————————————————————————————————————————————————————————
 %::
