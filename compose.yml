@@ -1,15 +1,35 @@
 services:
+    php:
+        container_name: php
+        build:
+            context: ./
+            dockerfile: docker/php/Dockerfile
+            target: php_dev
+            args:
+                TZ: ${TZ}
+        ports:
+            - 80:8000
+            - 443:8000
+        volumes:
+            - ./app:/app:rw,cached
 
-  php:
-    build:
-      context: ./
-      dockerfile: docker/Dockerfile
-      target: php_dev
-      args:
-          TZ: ${TZ}
-    container_name: php
-    ports:
-        - 80:8000
-        - 443:8000
-    volumes:
-      - ./app:/app:rw,cached
+    postgres:
+        container_name: postgres
+        image: postgres:16.1-alpine
+        restart: always
+        environment:
+            LANG: ${POSTGRES_LANG}.utf8
+            POSTGRES_INITDB_ARGS: --locale-provider=icu --icu-locale=${POSTGRES_LANG}
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_USER: ${POSTGRES_USER}
+        ports:
+            - ${POSTGRES_PORT}:5432
+        volumes:
+            - postgres_data:/var/lib/postgresql/data:rw
+        labels:
+            # See https://symfony.com/doc/current/setup/symfony_server.html#docker-integration
+            com.symfony.server.service-prefix: 'DATABASE'
+
+volumes:
+  postgres_data:
