@@ -25,21 +25,21 @@ COMPOSER = $(PHP_ROOT) composer
 ## ——————————————————
 ## —— Project
 ## ——————————————————
-.PHONY: help install files_permissions env
+.PHONY: help install env uninstall
 
 help: ## Outputs this help screen
 	@grep -hE '(^[a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
-install: env docker_compose_up composer_install files_permissions
-
-files_permissions: ## ACL permissions
-	sudo setfacl -dR -m u:$(CURRENT_UID):rwX ./app/var
-	sudo setfacl -R -m u:$(CURRENT_UID):rwX ./app/var
+install: env docker_compose_up composer_install
 
 env: ## Create env variables files if there are not already created
 	@echo "Create environment variables files if not exists"
-	cp -n .env.dist .env
+	-cp -n .env.dist .env
 	chmod 644 .env
+
+uninstall: ## Uninstall application
+	$(DOCKER_COMPOSE) down -v --rmi local
+	sudo rm -Rf ./app/var ./app/vendor ./app/public/bundles ./app/public/build ./app/node_modules
 
 ## ——————————————————
 ## —— Docker

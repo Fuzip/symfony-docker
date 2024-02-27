@@ -1,14 +1,17 @@
 #!/bin/bash
+set -e
 
-# Creating and setting permission on cache folder
-mkdir -p var/cache var/log
-setfacl -R -m u:"www-data":rwX -m u:"$(whoami)":rwX var
-setfacl -dR -m u:"www-data":rwX -m u:"$(whoami)":rwX var
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+	set -- php-fpm "$@"
+fi
 
-# Installing Symfony CA certificate
-symfony server:ca:install
+if [ "$1" = 'php-fpm' ] || [ "$1" = 'bin/console' ]; then
+	if [ "$APP_ENV" == "prod" ]; then
+		# Creating .env.local.php...
+		composer dump-env "$APP_ENV"
+	fi
+fi
 
-# Creating .env.local.php...
-composer dump-env "$APP_ENV"
 
-symfony server:start
+exec docker-php-entrypoint "$@"

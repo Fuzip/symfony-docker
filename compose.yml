@@ -8,8 +8,11 @@ services:
             args:
                 TZ: ${TZ}
         restart: always
+        entrypoint: ["/usr/local/bin/docker-entrypoint"]
+        command: ['php-fpm']
         volumes:
             - ./app:/app:rw,cached
+            - ./docker/php/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint:rw
 
     postgres:
         container_name: postgres

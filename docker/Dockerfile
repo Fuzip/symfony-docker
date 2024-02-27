@@ -15,7 +15,7 @@ ARG APP_DIR
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash
 
 # Install core packages
-ENV PACKAGES="acl curl g++ git libicu-dev locales netcat-openbsd symfony-cli unzip yarn"
+ENV PACKAGES="curl g++ git libicu-dev locales netcat-openbsd symfony-cli unzip yarn"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends $PACKAGES \
@@ -24,7 +24,7 @@ RUN apt-get update \
 # Install PHP core extensions
 # https://github.com/mlocati/docker-php-extension-installer
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions intl opcache
+RUN install-php-extensions intl opcache apcu
 
 # Set locales & timezone
 RUN echo "fr_FR.UTF-8 UTF-8" >> /etc/locale.gen \
