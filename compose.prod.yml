@@ -1,0 +1,24 @@
+services:
+    php:
+        container_name: php
+        image: ${REGISTRY_URL}${PHP_IMAGE}
+        restart: always
+
+    caddy:
+        container_name: caddy
+        image: ${REGISTRY_URL}${CADDY_IMAGE}
+        restart: always
+        hostname: localhost
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+        volumes:
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            - php
+
+volumes:
+    caddy_data:
+    caddy_config:

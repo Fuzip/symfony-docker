@@ -1,0 +1,37 @@
+services:
+    php:
+        container_name: php
+        build:
+            context: ./
+            dockerfile: docker/Dockerfile
+            target: php_dev
+            args:
+                TZ: ${TZ}
+                APP_DIR: ${APP_DIR}
+        restart: always
+        entrypoint: ["/usr/local/bin/docker-entrypoint"]
+        command: ['php-fpm']
+        volumes:
+            - ./app:${APP_DIR}:rw
+            - ./docker/php/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint:rw
+
+    caddy:
+        container_name: caddy
+        image: caddy:2.8
+        restart: always
+        hostname: localhost
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+        volumes:
+            - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+            - ./app/public:${APP_DIR}/public:delegated
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            - php
+
+volumes:
+    caddy_data:
+    caddy_config:

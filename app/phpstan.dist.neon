@@ -1,0 +1,6 @@
+parameters:
+    level: max
+    tmpDir: var/cache/phpstan
+    excludePaths:
+        - vendor
+        - var
