@@ -1,7 +1,6 @@
 # SymfonyDocker
 
-SymfonyDocker is a boiler template with a Symfony application,
-Postgres SQL database and a Caddy server, ready to be used with Docker compose.
+SymfonyDocker is a boiler template with a Symfony application hosted on Caddy server, ready to be used with Docker compose.
 
 [[_TOC_]]
 
