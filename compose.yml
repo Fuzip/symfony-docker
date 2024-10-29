@@ -1,0 +1,38 @@
+services:
+  php:
+    container_name: php
+    build:
+      target: php_dev
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+      # If you develop on Mac or Windows you can remove the vendor/ directory
+      #  from the bind-mount for better performance by enabling the next line:
+      #- /app/vendor
+    tty: true
+
+  caddy:
+    container_name: caddy
+    build:
+      target: caddy_dev
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_DIR: /app/public
+    working_dir: /app/public
+    volumes:
+      - ./public:/app/public:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    develop:
+      watch:
+        - path: ./docker/caddy/dev.Caddyfile
+          target: /etc/caddy/dev.Caddyfile
+          action: sync+restart
+    ports:
+      - "443:443"
+
+volumes:
+  caddy_data:
+  caddy_config:

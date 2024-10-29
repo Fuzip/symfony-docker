@@ -1,0 +1,18 @@
+services:
+  php:
+    container_name: php
+    build:
+      target: php_prod
+      context: .
+      dockerfile: Dockerfile
+
+  caddy:
+    container_name: caddy
+    build:
+      target: caddy_prod
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_DIR: /app/public
+    ports:
+      - "443:443"
