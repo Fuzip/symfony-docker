@@ -6,10 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./:/app
-      # If you develop on Mac or Windows you can remove the vendor/ directory
-      #  from the bind-mount for better performance by enabling the next line:
-      #- /app/vendor
+      - ./app:/app
     tty: true
 
   caddy:
@@ -22,7 +19,7 @@ services:
       APP_DIR: /app/public
     working_dir: /app/public
     volumes:
-      - ./public:/app/public:ro
+      - ./app/public:/app/public:ro
       - caddy_data:/data
       - caddy_config:/config
     develop:

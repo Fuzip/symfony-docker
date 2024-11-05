@@ -12,7 +12,6 @@ FROM php:${PHP_VERSION}-fpm AS php_common
 
 ARG APP_DIR
 WORKDIR $APP_DIR
-VOLUME $APP_DIR/var
 
 # Install core package
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -26,13 +25,10 @@ COPY --from=php_ext_installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN set -eux; \
     install-php-extensions \
       @composer \
+      apcu-5.1.24 \
       intl \
       opcache \
     ;
-
-# PECL extensions
-RUN pecl install apcu-5.1.24 \
-    && docker-php-ext-enable apcu
 
 # Composer configuration
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
@@ -50,9 +46,10 @@ CMD ["php-fpm"]
 
 FROM php_common AS php_dev
 
-# PECL extensions
-RUN pecl install xdebug-3.3.2 \
-    && docker-php-ext-enable xdebug
+RUN set -eux; \
+    install-php-extensions \
+      xdebug-3.3.2 \
+    ;
 
 # PHP configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
@@ -73,12 +70,12 @@ RUN set -eux; \
 	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
 
 # Copy sources
-COPY --link ./bin ./bin
-COPY --link ./config ./config
-COPY --link ./public ./public
-COPY --link ./src ./src
-COPY --link ./templates ./templates
-COPY --link ./.env ./.env
+COPY --link ./app/bin ./bin
+COPY --link ./app/config ./config
+COPY --link ./app/public ./public
+COPY --link ./app/src ./src
+COPY --link ./app/templates ./templates
+COPY --link ./app/.env ./.env
 COPY --link ./Makefile ./Makefile
 
 RUN set -eux; \
