@@ -11,7 +11,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build build_prod up up_prod start start_prod down logs sh composer vendor sf cc test
+.PHONY        : help build build_prod up up_prod start start_prod down logs sh composer vendor sf cc qa csFixer phpStan test
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -46,10 +46,6 @@ sh: ## Connect to the php container
 bash: ## Connect to the php container via bash so up and down arrows go to previous commands
 	@$(PHP_CONT) bash
 
-test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
-	@$(eval c ?=)
-	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
-
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'
 	@$(eval c ?=)
@@ -66,3 +62,19 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+## —— QA ✅ ———————————————————————————————————————————————————————————————
+qa: ## Run all quality assurance step
+qa: csFixer phpStan
+
+csFixer: ## Run CSFixer, pass the parameter "c=" to add options, example: make csFixer c='--dry-run'
+	@$(eval c ?=)
+	@$(DOCKER_COMP) exec php vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff $(c)
+
+phpStan: ## Run PHPStan, pass the parameter "c=" to add options, example: make phpStan c='-vv'
+	@$(eval c ?=)
+	@$(DOCKER_COMP) exec php vendor/bin/phpstan analyse src $(c)
+
+test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
+	@$(eval c ?=)
+	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
