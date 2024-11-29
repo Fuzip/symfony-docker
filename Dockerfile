@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-ARG PHP_VERSION=8.3.12
-ARG PHP_EXT_INSTALLER=2.6.1
+ARG PHP_VERSION=8.4.1
+ARG PHP_EXT_INSTALLER=2.7.4
 ARG CADDY_VERSION=2.8.4
 ARG APP_DIR=/app
 
@@ -48,7 +48,7 @@ FROM php_common AS php_dev
 
 RUN set -eux; \
     install-php-extensions \
-      xdebug-3.3.2 \
+      xdebug-3.4.0 \
     ;
 
 # PHP configuration
