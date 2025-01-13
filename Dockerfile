@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG PHP_VERSION=8.4.1
+ARG PHP_VERSION=8.3.15
 ARG PHP_EXT_INSTALLER=2.7.4
 ARG CADDY_VERSION=2.8.4
 ARG APP_DIR=/app
@@ -65,18 +65,18 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY --link ./docker/php/conf.d/20-app.prod.ini $PHP_INI_DIR/app.conf.d/
 
 # Prevent the reinstallation of vendors at every changes in the source code
-COPY --link composer.* symfony.* ./
+COPY --link ./app/composer.* ./app/symfony.* ./
 RUN set -eux; \
 	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
 
 # Copy sources
+COPY --link ./app/.env ./.env
 COPY --link ./app/bin ./bin
 COPY --link ./app/config ./config
+COPY --link ./Makefile ./Makefile
 COPY --link ./app/public ./public
 COPY --link ./app/src ./src
 COPY --link ./app/templates ./templates
-COPY --link ./app/.env ./.env
-COPY --link ./Makefile ./Makefile
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
@@ -84,6 +84,26 @@ RUN set -eux; \
 	composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; sync;
+
+
+FROM php_common AS php_test
+
+ENV APP_ENV=test
+
+# Copy sources
+COPY --link ./app/.php-cs-fixer.php ./app/phpstan.neon ./app/phpunit.xml ./
+COPY --link ./app/composer.* ./app/symfony.* ./
+COPY --link ./app/.env ./app/.env.test ./
+COPY --link ./app/bin ./bin
+COPY --link ./app/config ./config
+COPY --link ./Makefile ./Makefile
+COPY --link ./app/public ./public
+COPY --link ./app/src ./src
+COPY --link ./app/templates ./templates
+COPY --link ./app/tests ./tests
+
+# Re-install composer vendors for test environment
+RUN composer install --quiet --no-scripts --no-progress
 
 
 FROM caddy:${CADDY_VERSION}-alpine AS caddy_dev

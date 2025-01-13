@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: ~
+  workflow_dispatch: ~
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy configuration files
+        run: |
+          cp ./app/.php-cs-fixer.dist.php ./app/.php-cs-fixer.php
+          cp ./app/phpstan.dist.neon ./app/phpstan.neon
+          cp ./app/phpunit.xml.dist ./app/phpunit.xml
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build PHP test container
+        run: make build_php_test
+
+      - name: Run PHP CS Fixer
+        run: make csFixer
+
+      - name: Run PHPStan
+        run: make phpStan
+
+      - name: Run PHPUnit
+        run: make test
