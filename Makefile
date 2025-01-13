@@ -72,14 +72,14 @@ cc: sf
 qa: ## Run all quality assurance step
 qa: csFixer phpStan test
 
-csFixer: build_php_test ## Run CSFixer, pass the parameter "c=" to add options, example: make csFixer c='--dry-run'
+csFixer: ## Run CSFixer, pass the parameter "c=" to add options, example: make csFixer c='--dry-run'
 	@$(eval c ?=)
 	@$(PHP_TEST_CONT) vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff $(c)
 
-phpStan: build_php_test ## Run PHPStan, pass the parameter "c=" to add options, example: make phpStan c='-vv'
+phpStan: ## Run PHPStan, pass the parameter "c=" to add options, example: make phpStan c='-vv'
 	@$(eval c ?=)
 	@$(PHP_TEST_CONT) vendor/bin/phpstan analyse src $(c)
 
-test: build_php_test ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
+test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
 	@$(eval c ?=)
 	@$(PHP_TEST_CONT) php vendor/bin/phpunit $(c)
