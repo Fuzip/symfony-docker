@@ -13,6 +13,8 @@ FROM php:${PHP_VERSION}-fpm AS php_common
 ARG APP_DIR
 WORKDIR $APP_DIR
 
+VOLUME $APP_DIR/var/
+
 # Install core package
 RUN apt-get update && apt-get install -y --no-install-recommends \
     acl \
