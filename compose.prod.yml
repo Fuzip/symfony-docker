@@ -1,13 +1,13 @@
 services:
   php:
-    container_name: php
+    container_name: symfony-docker-php
     build:
       target: php_prod
       context: .
       dockerfile: Dockerfile
 
   caddy:
-    container_name: caddy
+    container_name: symfony-docker-caddy
     build:
       target: caddy_prod
       context: .

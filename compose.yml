@@ -1,6 +1,6 @@
 services:
   php:
-    container_name: php
+    container_name: symfony-docker-php
     build:
       target: php_dev
       context: .
@@ -10,7 +10,7 @@ services:
     tty: true
 
   caddy:
-    container_name: caddy
+    container_name: symfony-docker-caddy
     build:
       target: caddy_dev
       context: .
