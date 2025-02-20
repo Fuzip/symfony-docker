@@ -18,6 +18,7 @@ jobs:
 
       - name: Copy configuration files
         run: |
+          cp ./.env.dist ./.env
           cp ./app/.php-cs-fixer.dist.php ./app/.php-cs-fixer.php
           cp ./app/phpstan.dist.neon ./app/phpstan.neon
           cp ./app/phpunit.xml.dist ./app/phpunit.xml
@@ -25,14 +26,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build PHP test container
-        run: make build_php_test
+      - name: Build Docker compose test stack
+        run: docker compose -f compose.yml -f compose.test.yml build --no-cache --quiet
+
+      - name: Start Docker compose stacks
+        run: docker compose -f compose.yml -f compose.test.yml up -d
 
       - name: Run PHP CS Fixer
-        run: make csFixer
+        run: docker compose exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no
 
       - name: Run PHPStan
-        run: make phpStan
+        run: docker compose exec php vendor/bin/phpstan analyse src
 
       - name: Run PHPUnit
-        run: make test
+        run: docker compose exec php php vendor/bin/phpunit

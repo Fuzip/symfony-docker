@@ -1,0 +1,19 @@
+services:
+  php:
+    volumes:
+      - ./app:/app:cached
+    environment:
+      # See https://xdebug.org/docs/all_settings#mode
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+    tty: true
+
+  caddy:
+    volumes:
+      - ./app/public:/app/public:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    develop:
+      watch:
+        - path: ./docker/caddy/dev.Caddyfile
+          target: /etc/caddy/dev.Caddyfile
+          action: sync+restart

@@ -1,0 +1,7 @@
+# Test environment override
+services:
+  php:
+    build:
+      target: php_test
+      context: .
+      dockerfile: Dockerfile

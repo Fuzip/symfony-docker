@@ -4,7 +4,6 @@ DOCKER_COMP = docker compose
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
-PHP_TEST_CONT = $(DOCKER) run --rm symfony-docker-php:test
 
 # Executables
 PHP      = $(PHP_CONT) php
@@ -13,7 +12,7 @@ SYMFONY  = $(PHP) bin/console
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build build_php_test build_prod up up_prod start start_prod down logs sh composer vendor sf cc qa csFixer phpStan test
+.PHONY        : help build build_prod up up_prod start start_prod down logs sh composer vendor sf cc qa csFixer phpStan test
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -23,17 +22,14 @@ help: ## Outputs this help screen
 build: ## Builds the Docker images
 	@$(DOCKER_COMP) build --pull --no-cache
 
-build_php_test: ## Builds the PHP test Docker image
-	@$(DOCKER) build -t symfony-docker-php:test --target php_test -f ./Dockerfile .
-
 build_prod: ## Builds the prod Docker images
-	@$(DOCKER_COMP) -f compose.prod.yml build --pull --no-cache
+	@$(DOCKER_COMP) -f compose.yml -f compose.prod.yml build --pull --no-cache
 
 up: ## Start the docker hub in detached mode (no logs)
 	@$(DOCKER_COMP) up -d
 
 up_prod: ## Start the docker prod hub in detached mode (no logs)
-	@$(DOCKER_COMP) -f compose.prod.yml up -d
+	@$(DOCKER_COMP) -f compose.yml -f compose.prod.yml up -d
 
 start: build up ## Build and start the containers
 
@@ -74,12 +70,12 @@ qa: csFixer phpStan test
 
 csFixer: ## Run CSFixer, pass the parameter "c=" to add options, example: make csFixer c='--dry-run'
 	@$(eval c ?=)
-	@$(PHP_TEST_CONT) vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff $(c)
+	@$(PHP_CONT) vendor/bin/php-cs-fixer fix --using-cache=no --verbose $(c)
 
 phpStan: ## Run PHPStan, pass the parameter "c=" to add options, example: make phpStan c='-vv'
 	@$(eval c ?=)
-	@$(PHP_TEST_CONT) vendor/bin/phpstan analyse src $(c)
+	@$(PHP_CONT) vendor/bin/phpstan analyse src $(c)
 
 test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
 	@$(eval c ?=)
-	@$(PHP_TEST_CONT) php vendor/bin/phpunit $(c)
+	@$(PHP_CONT) php vendor/bin/phpunit $(c)

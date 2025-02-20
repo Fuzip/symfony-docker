@@ -2,6 +2,7 @@
 ARG PHP_VERSION=8.3.15
 ARG PHP_EXT_INSTALLER=2.7.4
 ARG CADDY_VERSION=2.8.4
+ARG POSTGRES_VERSION=17.3
 ARG APP_DIR=/app
 
 # https://github.com/mlocati/docker-php-extension-installer
@@ -30,6 +31,7 @@ RUN set -eux; \
       apcu-5.1.24 \
       intl \
       opcache \
+      pdo_pgsql \
     ;
 
 # Composer configuration
@@ -126,3 +128,8 @@ COPY ./docker/caddy/Caddyfile /etc/caddy/Caddyfile
 # Copy sources
 COPY --from=php_prod $APP_DIR/public $APP_DIR/public
 
+
+FROM postgres:${POSTGRES_VERSION}-alpine AS postgres_dev
+
+
+FROM postgres:${POSTGRES_VERSION}-alpine AS postgres_prod
