@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DOCKER_PHP_TEST_TAG: "$GITHUB_REPOSITORY-php:test"
+      DOCKER_PHP_TEST_TAG: "${{ github.repository }}-php:test"
       DOCKER_PHP_BUILD_TARGET: php_test
 
     steps:
