@@ -30,7 +30,7 @@ jobs:
         run: docker compose -f compose.yml -f compose.test.yml up -d
 
       - name: Run PHP CS Fixer
-        run: docker compose exec php vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff
+        run: docker compose exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no
 
       - name: Run PHPStan
         run: docker compose exec php vendor/bin/phpstan analyse src

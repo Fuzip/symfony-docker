@@ -70,7 +70,7 @@ qa: csFixer phpStan test
 
 csFixer: ## Run CSFixer, pass the parameter "c=" to add options, example: make csFixer c='--dry-run'
 	@$(eval c ?=)
-	@$(PHP_CONT) vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff $(c)
+	@$(PHP_CONT) vendor/bin/php-cs-fixer fix --using-cache=no --verbose $(c)
 
 phpStan: ## Run PHPStan, pass the parameter "c=" to add options, example: make phpStan c='-vv'
 	@$(eval c ?=)
