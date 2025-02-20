@@ -12,6 +12,10 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
 
+    env:
+      DOCKER_PHP_TEST_TAG: "$GITHUB_REPOSITORY-php:test"
+      DOCKER_PHP_BUILD_TARGET: php_test
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,13 +30,13 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build PHP test container
-        run: make build_php_test
+        run: docker build -t $DOCKER_PHP_TEST_TAG --target $DOCKER_PHP_BUILD_TARGET -f ./Dockerfile .
 
       - name: Run PHP CS Fixer
-        run: make csFixer
+        run: docker run --rm $DOCKER_PHP_TEST_TAG vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff
 
       - name: Run PHPStan
-        run: make phpStan
+        run: docker run --rm $DOCKER_PHP_TEST_TAG vendor/bin/phpstan analyse src
 
       - name: Run PHPUnit
-        run: make test
+        run: docker run --rm $DOCKER_PHP_TEST_TAG php vendor/bin/phpunit

@@ -1,16 +1,14 @@
 services:
   php:
-    container_name: symfony-docker-php
     build:
       target: php_dev
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./app:/app
-    tty: true
+    depends_on:
+      db:
+        condition: service_healthy
 
   caddy:
-    container_name: symfony-docker-caddy
     build:
       target: caddy_dev
       context: .
@@ -18,18 +16,38 @@ services:
     environment:
       APP_DIR: /app/public
     working_dir: /app/public
-    volumes:
-      - ./app/public:/app/public:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    develop:
-      watch:
-        - path: ./docker/caddy/dev.Caddyfile
-          target: /etc/caddy/dev.Caddyfile
-          action: sync+restart
+    depends_on:
+      php:
+        condition: service_started
     ports:
-      - "443:443"
+      - "${HTTPS_PORT}:443"
+
+  db:
+    build:
+      target: postgres_dev
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    environment:
+      LANG: "${POSTGRES_LANG}:${POSTGRES_ENCODING}"
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=${POSTGRES_LANG}"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data:rw
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "${POSTGRES_DB}" ]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
 
 volumes:
   caddy_data:
   caddy_config:
+  db_data:

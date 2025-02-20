@@ -19,6 +19,7 @@ A Docker Symfony project template ready to use !
 
 1. Install [Docker Desktop](https://docs.docker.com/desktop/) (or
 [Docker Engine](https://docs.docker.com/engine/)).
+2. Copy the Docker environment file `./.env.dist` to `./.env`.
 2. Run `make start` to build and start the Docker image.
 3. Open `https://localhost` in your favorite web browser and [accept the auto-generated TLS certificate]
 
