@@ -18,6 +18,7 @@ jobs:
 
       - name: Copy configuration files
         run: |
+          cp ./.env.dist ./.env
           cp ./app/.php-cs-fixer.dist.php ./app/.php-cs-fixer.php
           cp ./app/phpstan.dist.neon ./app/phpstan.neon
           cp ./app/phpunit.xml.dist ./app/phpunit.xml
